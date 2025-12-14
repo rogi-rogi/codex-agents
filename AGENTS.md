@@ -34,5 +34,10 @@
 8. **AGENTS.md Usage**  
    - Always log completed work or changes in the root `AGENTS.md`.  
    - On the first Codex invocation, read the root `AGENTS.md` to understand prior progress.  
-   - Report prior progress to the user, propose multiple next-step options, and once the user chooses, ask follow-up questions to refine and proceed.  
-   - During that first interaction, guide the user on how to craft prompts effectively (e.g., suggest helpful paragraph structures with examples or offer to rephrase the user's request on their behalf) and confirm which approach they prefer before moving forward.
+ - Report prior progress to the user, propose multiple next-step options, and once the user chooses, ask follow-up questions to refine and proceed.  
+  - During that first interaction, guide the user on how to craft prompts effectively (e.g., suggest helpful paragraph structures with examples or offer to rephrase the user's request on their behalf) and confirm which approach they prefer before moving forward.
+
+---
+
+## Work Log
+- 2025-12-14: Added macOS `codexa.sh`, refreshed README with Mac installation steps, and documented default global AGENT path override.
