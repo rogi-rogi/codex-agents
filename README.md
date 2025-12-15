@@ -1,70 +1,138 @@
 # Codexa
 
-![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows) ![macOS](https://img.shields.io/badge/Platform-macOS-000000?logo=apple)
-
 ## Overview
-Codexa is a tiny helper around the `codex` CLI. It stitches together global and local `AGENTS.md` rules, appends the user prompt, escapes double quotes, and forwards the single combined prompt to the Codex CLI. The Windows version is implemented in PowerShell, and the macOS version mirrors the same workflow with a small Zsh script.
+
+**Codexa** is an ultra-lightweight helper tool for the `codex` CLI.
+It automatically merges global and local `AGENTS.md` rules, appends the user prompt, and executes the Codex CLI with a single combined prompt.
+
+On Windows, Codexa is implemented as a **PowerShell script**, and on macOS as a **Zsh script** that follows the same workflow.
+This ensures a consistent Codex execution environment across operating systems.
 
 <br/>
 
-## Repository Contents
-- `codexa.ps1` ? PowerShell function that loads AGENTS, merges prompts, and calls `codex`.
-- `codexa.sh` ? Zsh script that offers the same behavior on macOS.
-- `Microsoft.PowerShell_profile.ps1` ? Bootstraps `codexa.ps1` for every PowerShell session.
-- `AGENTS.md` ? Shared guidelines for every invocation (global + per-repo).
+## Repository Structure
+
+- **codexa.ps1**
+  PowerShell implementation of the `codexa` function
+  (Load AGENTS → Merge prompts → Invoke `codex`)
+
+- **codexa.sh**
+  Zsh script for macOS
+  Behaves identically to the PowerShell version
+
+- **Microsoft.PowerShell_profile.ps1**
+  Bootstrap file that automatically loads `codexa.ps1` when PowerShell starts
+
+- **AGENTS.md**
+  Shared guidelines applied to every Codex invocation
 
 <br/>
 
 ## Installation (Windows / PowerShell)
-1. Install the `codex` CLI and make sure it is available on PATH.
-2. Copy `codexa.ps1`, `Microsoft.PowerShell_profile.ps1`, and (optionally) `AGENTS.md` into `%USERPROFILE%\Documents\WindowsPowerShell`.
-3. Launch PowerShell and confirm `$PROFILE` points to that directory.
-4. Ensure `Microsoft.PowerShell_profile.ps1` dot-sources `codexa.ps1` (the provided file already does this).
-5. Run `codexa -Verbose "hello"` to confirm the wiring.
+
+1. Install the `codex` CLI and ensure it is available in your PATH.
+2. Copy the following files to `%USERPROFILE%\Documents\WindowsPowerShell`:
+   - `codexa.ps1`
+   - `Microsoft.PowerShell_profile.ps1`
+   - `AGENTS.md`
+3. Verify your PowerShell profile path:
+   ```powershell
+   $PROFILE
+   ```
+4. Ensure `Microsoft.PowerShell_profile.ps1` dot-sources `codexa.ps1`.
+5. Verify installation:
+   ```powershell
+   codexa
+   codexa -Verbose "hello"
+   ```
 
 <br/>
 
 ## Installation (macOS / Zsh)
-1. Install the `codex` CLI and expose it on PATH.
-2. Copy `codexa.sh` to a directory on PATH, e.g. `~/bin`:
+
+1. Install the `codex` CLI and ensure it is available in your PATH.
+2. Copy `codexa.sh` to a directory included in PATH:
    ```bash
    install -d "$HOME/bin"
    install codexa.sh "$HOME/bin/codexa"
    ```
-3. Ensure the directory is exported in your shell config (Zsh shown):
+3. Add the directory to your shell configuration (Zsh):
    ```bash
    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
    ```
-4. Restart the terminal or `source ~/.zshrc`.
-5. Run `codexa "hello"` to verify everything works.
+4. Set up a global `AGENTS.md` file:
 
-> Global AGENT location on macOS defaults to `~/.config/codexa/AGENTS.md`
+   ```bash
+   mkdir -p ~/.config/codexa
+   cp /Users/[username]/codex-agents/AGENTS.md ~/.config/codexa/AGENTS.md
+   ```
+
+   On macOS, the default global AGENTS location is:
+   `~/.config/codexa/AGENTS.md`
+
+5. Reload your shell:
+   ```bash
+   source ~/.zshrc
+   ```
+6. Verify installation:
+   ```bash
+   codexa
+   codexa "hello"
+   ```
 
 <br/>
 
 ## Usage
-```powershell
-codexa
-codexa "hello"
-codexa -Verbose "hello"
+
+```bash
+codexa "Analyze the root cause of a project build failure"
 ```
-Behavior:
-- Loads the global `AGENTS.md`. If not found, prints an informational note.
-- Loads the local `AGENTS.md` from the current repository (if it exists).
-- Concatenates user-provided prompt text.
-- Escapes embedded `"` characters so Codex receives a single argument.
-- Calls `codex` CLI with the merged prompt.
+
+Execution flow:
+
+- Load global `AGENTS.md`
+- Load repository-level `AGENTS.md` if present
+- Append the user prompt
+- Escape double quotes for safe single-argument passing
+- Forward the combined prompt to the `codex` CLI
 
 <br/>
 
-## AGENTS Layout Suggestions
-1. Global `AGENTS.md`: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md` (Windows) or `~/.config/codexa/AGENTS.md` (macOS).
-2. Per-repo `AGENTS.md`: Checked into each project near the worktree root.
-3. `codexa` merges them automatically to keep shared guardrails and project-specific rules synchronized.
+## Recommended AGENTS Setup
+
+1. Global `AGENTS.md`
+
+   - Windows: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md`
+   - macOS: `~/.config/codexa/AGENTS.md`
+
+2. Repository-specific `AGENTS.md`
+
+   - Place near the project root or worktree
+
+3. Codexa responsibility
+   - Automatically merge global + project rules
+   - Maintain consistent guardrails without manual copying
+
+<br/>
 
 ## Verification Checklist
-- `codexa -Verbose "hello"` (PowerShell) shows the AGENTS paths it used.
-- `codexa "hello"` (macOS) runs without errors and reaches `codex`.
+
+- PowerShell:
+
+  ```powershell
+  codexa -Verbose "hello"
+  ```
+
+- macOS:
+  ```bash
+  codexa "hello"
+  ```
+
+<br/>
 
 ## License
-See [LICENSE](LICENSE).
+
+See [LICENSE](LICENSE) for details.
+
+⚠️ `AGENTS.md` may contain internal rules or sensitive instructions.
+Always review its contents before publishing to a public repository.

@@ -25,8 +25,7 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
   PowerShell 시작 시 `codexa.ps1`를 자동으로 로드하기 위한 부트스트랩 파일
 
 - **`AGENTS.md`**  
-  모든 Codex 실행에 적용될 공통 가이드라인  
-  (전역 + 저장소별 규칙)
+  모든 Codex 실행에 적용될 공통 가이드라인
 
 <br/>
 
@@ -36,7 +35,7 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
 2. 아래 파일들을 `%USERPROFILE%\Documents\WindowsPowerShell`에 복사합니다.
    - `codexa.ps1`
    - `Microsoft.PowerShell_profile.ps1`
-   - (선택) `AGENTS.md`
+   - `AGENTS.md`
 3. PowerShell에서 프로필 경로를 확인합니다.
    ```powershell
    $PROFILE
@@ -44,6 +43,7 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
 4. `Microsoft.PowerShell_profile.ps1`가 `codexa.ps1`를 dot-source 하고 있는지 확인합니다.
 5. 다음 명령으로 정상 동작을 확인합니다.
    ```powershell
+   codexa
    codexa -Verbose "hello"
    ```
 
@@ -61,16 +61,24 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
    ```bash
    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
    ```
-4. 터미널을 재시작하거나 다음 명령을 실행합니다.
+4. 전역으로 사용할 AGENTS.md를 설정한 경로에 복사/이동합니다.  
+   예시 명령어는 다음과 같습니다.
+   ```bash
+   mkdir -p ~/.config/codexa
+   cp /Users/[username]/codex-agents/AGENTS.md ~/.config/codexa/AGENTS.md
+   ```
+
+> macOS에서 전역 AGENTS 기본 위치는 `~/.config/codexa/AGENTS.md` 입니다.
+
+5. 터미널을 재시작하거나 다음 명령을 실행합니다.
    ```bash
    source ~/.zshrc
    ```
-5. 정상 동작을 확인합니다.
+6. 정상 동작을 확인합니다.
    ```bash
+   codexa
    codexa "hello"
    ```
-
-> macOS에서 전역 AGENTS 기본 위치는 `~/.config/codexa/AGENTS.md` 입니다. 
 
 <br/>
 
@@ -81,6 +89,7 @@ codexa "프로젝트 빌드 오류 원인 분석"
 ```
 
 동작 방식:
+
 - 전역 `AGENTS.md`를 먼저 로드합니다.
 - 현재 저장소에 `AGENTS.md`가 있으면 추가로 로드합니다.
 - 사용자가 입력한 프롬프트를 이어 붙입니다.
@@ -92,10 +101,12 @@ codexa "프로젝트 빌드 오류 원인 분석"
 ## AGENTS 구성 권장 방식
 
 1. 전역 `AGENTS.md`
+
    - Windows: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md`
    - macOS: `~/.config/codexa/AGENTS.md`
 
 2. 저장소별 `AGENTS.md`
+
    - 각 프로젝트 루트 또는 워크트리 근처에 배치
 
 3. Codexa 역할
@@ -107,6 +118,7 @@ codexa "프로젝트 빌드 오류 원인 분석"
 ## 동작 확인 체크리스트
 
 - PowerShell:
+
   ```powershell
   codexa -Verbose "hello"
   ```
