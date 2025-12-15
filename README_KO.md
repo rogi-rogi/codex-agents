@@ -65,7 +65,7 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
 
    ```bash
    mkdir -p ~/.config/codexa
-   cp /Users/[username]/codex-agents/AGENTS.md ~/.config/codexa/AGENTS.md
+   cp ./AGENTS.md ~/.config/codexa/AGENTS.md
    ```
 
    > macOS에서 전역 AGENTS 기본 위치는 `~/.config/codexa/AGENTS.md` 입니다.
