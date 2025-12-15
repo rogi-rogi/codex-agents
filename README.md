@@ -65,7 +65,7 @@ On Windows it is implemented as a **PowerShell script**, and on macOS as a **Zsh
 
    ```bash
    mkdir -p ~/.config/codexa
-   cp /Users/[username]/codex-agents/AGENTS.md ~/.config/codexa/AGENTS.md
+   cp ./AGENTS.md ~/.config/codexa/AGENTS.md
    ```
 
    > The default global AGENTS location on macOS is `~/.config/codexa/AGENTS.md`.
