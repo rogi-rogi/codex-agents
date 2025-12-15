@@ -2,7 +2,7 @@
 
 ![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows) ![macOS](https://img.shields.io/badge/Platform-macOS-000000?logo=apple)
 
-## 개요 (Overview)
+## 개요
 
 **Codexa**는 `codex` CLI를 보조하는 초경량 헬퍼 도구입니다.  
 전역(Global) 및 로컬(Local) `AGENTS.md` 규칙을 자동으로 결합하고, 사용자가 입력한 프롬프트를 덧붙인 뒤, 하나의 결합된 프롬프트로 Codex CLI를 실행합니다.
@@ -32,52 +32,47 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
 ## 설치 방법 (Windows / PowerShell)
 
 1. `codex` CLI를 설치하고 PATH에 등록합니다.
-2. 아래 파일들을 `%USERPROFILE%\Documents\WindowsPowerShell`에 복사합니다.
+2. 아래 파일들을 PowerShell의 기본 프로필 경로인 `%USERPROFILE%\Documents\WindowsPowerShell`에 복사합니다.
    - `codexa.ps1`
    - `Microsoft.PowerShell_profile.ps1`
    - `AGENTS.md`
-3. PowerShell에서 프로필 경로를 확인합니다.
+3. 이미 `Microsoft.PowerShell_profile.ps1`가 존재한다면 다음 코드를 붙여넣으세요.
+
    ```powershell
-   $PROFILE
-   ```
-4. `Microsoft.PowerShell_profile.ps1`가 `codexa.ps1`를 dot-source 하고 있는지 확인합니다.
-5. 다음 명령으로 정상 동작을 확인합니다.
-   ```powershell
-   codexa
-   codexa -Verbose "hello"
+   $codexaScript = Join-Path (Split-Path $PROFILE) "codexa.ps1"
+   if (Test-Path $codexaScript) {
+      . $codexaScript
+   } else {
+      Write-Warning "codexa.ps1 not found in $($codexaScript | Split-Path). Codexa commands will be unavailable."
+   }
    ```
 
 <br/>
 
 ## 설치 방법 (macOS / Zsh)
 
-1. `codex` CLI를 설치하고 PATH에 등록합니다.
-2. `codexa.sh`를 PATH에 포함된 디렉터리로 복사합니다.
+1. `codexa.sh`를 PATH에 포함된 디렉터리로 복사합니다.
    ```bash
    install -d "$HOME/bin"
    install codexa.sh "$HOME/bin/codexa"
    ```
-3. 셸 설정 파일에 PATH를 추가합니다. (Zsh 기준)
+2. 셸 설정 파일에 PATH를 추가합니다. (Zsh 기준)
    ```bash
    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
    ```
-4. 전역으로 사용할 AGENTS.md를 설정한 경로에 복사/이동합니다.  
+3. 전역으로 사용할 AGENTS.md를 설정한 경로에 복사/이동합니다.  
    예시 명령어는 다음과 같습니다.
+
    ```bash
    mkdir -p ~/.config/codexa
    cp /Users/[username]/codex-agents/AGENTS.md ~/.config/codexa/AGENTS.md
    ```
 
-> macOS에서 전역 AGENTS 기본 위치는 `~/.config/codexa/AGENTS.md` 입니다.
+   > macOS에서 전역 AGENTS 기본 위치는 `~/.config/codexa/AGENTS.md` 입니다.
 
-5. 터미널을 재시작하거나 다음 명령을 실행합니다.
+4. 터미널을 재시작하거나 다음 명령을 실행합니다.
    ```bash
    source ~/.zshrc
-   ```
-6. 정상 동작을 확인합니다.
-   ```bash
-   codexa
-   codexa "hello"
    ```
 
 <br/>
@@ -85,7 +80,8 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
 ## 사용 방법
 
 ```powershell
-codexa "프로젝트 빌드 오류 원인 분석"
+codexa
+codexa "명령"
 ```
 
 동작 방식:
@@ -93,7 +89,6 @@ codexa "프로젝트 빌드 오류 원인 분석"
 - 전역 `AGENTS.md`를 먼저 로드합니다.
 - 현재 저장소에 `AGENTS.md`가 있으면 추가로 로드합니다.
 - 사용자가 입력한 프롬프트를 이어 붙입니다.
-- 프롬프트 내부의 `"` 문자를 이스케이프하여 단일 인자로 전달합니다.
 - 결합된 프롬프트를 `codex` CLI에 전달합니다.
 
 <br/>
@@ -101,6 +96,7 @@ codexa "프로젝트 빌드 오류 원인 분석"
 ## AGENTS 구성 권장 방식
 
 1. 전역 `AGENTS.md`
+   본 저장소에서 제공하는 `AGENTS.md` 또는 전역으로 적용할 파일을 아래의 경로에 존재해야 합니다.
 
    - Windows: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md`
    - macOS: `~/.config/codexa/AGENTS.md`
@@ -112,21 +108,6 @@ codexa "프로젝트 빌드 오류 원인 분석"
 3. Codexa 역할
    - 전역 규칙 + 프로젝트 규칙 자동 병합
    - 매번 수동 복사 없이 동일한 가드레일 유지
-
-<br/>
-
-## 동작 확인 체크리스트
-
-- PowerShell:
-
-  ```powershell
-  codexa -Verbose "hello"
-  ```
-
-- macOS:
-  ```bash
-  codexa "hello"
-  ```
 
 <br/>
 
