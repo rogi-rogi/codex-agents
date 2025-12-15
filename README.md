@@ -9,6 +9,9 @@ It automatically combines global and local `AGENTS.md` rules, appends the prompt
 
 On Windows it is implemented as a **PowerShell script**, and on macOS as a **Zsh script** that follows the same workflow, delivering a consistent Codex execution environment regardless of operating system.
 
+![](/overview1.png)
+![](/overview2.png)
+
 <br/>
 
 ## Repository Layout

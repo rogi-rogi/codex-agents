@@ -9,6 +9,9 @@
 
 Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플로를 따르는 **Zsh 스크립트**로 구현되어 있으며, 운영체제와 무관하게 일관된 Codex 실행 환경을 제공합니다.
 
+![](/overview1.png)
+![](/overview2.png)
+
 <br/>
 
 ## 레포지토리 구성
