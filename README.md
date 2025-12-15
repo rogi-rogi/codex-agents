@@ -115,5 +115,4 @@ How it works:
 
 See [LICENSE](LICENSE) for details.
 
-> ⚠️ `AGENTS.md` may contain internal policies or sensitive instructions.  
-> Always review the content before publishing it to a public repository.
+> ⚠️ `AGENTS.md` may contain internal policies or sensitive instructions.
