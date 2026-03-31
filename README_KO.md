@@ -1,58 +1,65 @@
-# Codexa
+﻿# Codexa
 
 ![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows) ![macOS](https://img.shields.io/badge/Platform-macOS-000000?logo=apple)
 
 ## 개요
 
-**Codexa**는 `codex` CLI를 보조하는 초경량 헬퍼 도구입니다.  
-전역(Global) 및 로컬(Local) `AGENTS.md` 규칙을 자동으로 결합하고, 사용자가 입력한 프롬프트를 덧붙인 뒤, 하나의 결합된 프롬프트로 Codex CLI를 실행합니다.
+Codexa는 `codex` CLI를 보조하는 경량 래퍼입니다.
 
-Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플로를 따르는 **Zsh 스크립트**로 구현되어 있으며, 운영체제와 무관하게 일관된 Codex 실행 환경을 제공합니다.
+아래 3가지를 순서대로 합쳐서 하나의 프롬프트로 `codex`에 전달합니다.
 
-![](/overview1.png)
-![](/overview2.png)
+- 전역 `AGENTS.md`: 공통 기준 규칙
+- 로컬 `AGENTS.md`: 현재 호출 위치의 프로젝트/작업별 규칙
+- 사용자가 입력한 프롬프트(선택)
 
-<br/>
+이 방식으로 전역 표준은 유지하면서도, 프로젝트별로 다른 페르소나/작업 방식을 적용할 수 있습니다.
+또한 ChatGPT 계정이 달라도 같은 에이전트 동작 기준을 재현할 수 있습니다.
 
-## 레포지토리 구성
+## 구성
 
-- **`codexa.ps1`**  
-  PowerShell용 `codexa` 함수 구현  
-  (AGENTS 로드 → 프롬프트 병합 → `codex` 호출)
+운영체제별 구성 요소를 사용해 설치/실행할 수 있습니다.
 
-- **`codexa.sh`**  
-  macOS(Zsh)용 스크립트  
-  PowerShell 버전과 동일한 동작을 수행
+```
+📦codexa-agents
+┣ 📂codexa-windows
+┃ ┣ 📂codexa
+┃ ┗ ⚙️ setup-windows.ps1: Windows 설치 스크립트 (폴더 복사 + PATH 등록)
+┗ ⚙️codexa.sh: macOS zsh 실행 스크립트
+```
 
-- **`Microsoft.PowerShell_profile.ps1`**  
-  PowerShell 시작 시 `codexa.ps1`를 자동으로 로드하기 위한 부트스트랩 파일
+> 현재 자동 설치 스크립트는 Windows 기준으로 제공되며, macOS 설치 스크립트는 추후 추가될 예정입니다.
 
-- **`AGENTS.md`**  
-  모든 Codex 실행에 적용될 공통 가이드라인
+## Windows 설치
 
-<br/>
+### 사전 조건
 
-## 설치 방법 (Windows / PowerShell)
+1. `codex` CLI를 설치합니다.
+2. 터미널에서 `codex` 명령이 실행 가능해야 합니다.
 
-1. `codex` CLI를 설치하고 PATH에 등록합니다.
-2. 아래 파일들을 PowerShell의 기본 프로필 경로인 `%USERPROFILE%\Documents\WindowsPowerShell`에 복사합니다.
-   - `codexa.ps1`
-   - `Microsoft.PowerShell_profile.ps1`
-   - `AGENTS.md`
-3. 이미 `Microsoft.PowerShell_profile.ps1`가 존재한다면 다음 코드를 붙여넣으세요.
+### 설치 절차
 
-   ```powershell
-   $codexaScript = Join-Path (Split-Path $PROFILE) "codexa.ps1"
-   if (Test-Path $codexaScript) {
-      . $codexaScript
-   } else {
-      Write-Warning "codexa.ps1 not found in $($codexaScript | Split-Path). Codexa commands will be unavailable."
-   }
-   ```
+1. `PowerShell`로 `.\codexa-windows\setup-windows.ps1`를 실행합니다.
+   ![](./setup-windows.png)
 
-<br/>
+1. 환경 변수 설정 및 codexa 동작을 확인합니다.
 
-## 설치 방법 (macOS / Zsh)
+```bash
+where codexa
+codexa "test"
+```
+
+### 환경변수 등록
+
+`PATH` (User 범위): `%LOCALAPPDATA%\codexa\bin` 추가
+
+## 실행 시 동작(Windows)
+
+- 진입점: `codexa` (`%LOCALAPPDATA%\codexa\bin\codexa.cmd`)
+- 핵심 로직: `%LOCALAPPDATA%\codexa\bin\codexa.ps1`
+- 전역 AGENTS: `%LOCALAPPDATA%\codexa\AGENTS.md` (`bin` 기준 `..\AGENTS.md`)
+- 로컬 AGENTS: 현재 폴더의 `./AGENTS.md`
+
+## macOS 설치
 
 1. `codexa.sh`를 PATH에 포함된 디렉터리로 복사합니다.
    ```bash
@@ -78,44 +85,6 @@ Windows에서는 **PowerShell 스크립트**, macOS에서는 동일한 워크플
    source ~/.zshrc
    ```
 
-<br/>
-
-## 사용 방법
-
-```powershell
-codexa
-codexa "명령"
-```
-
-동작 방식:
-
-- 전역 `AGENTS.md`를 먼저 로드합니다.
-- 현재 저장소에 `AGENTS.md`가 있으면 추가로 로드합니다.
-- 사용자가 입력한 프롬프트를 이어 붙입니다.
-- 결합된 프롬프트를 `codex` CLI에 전달합니다.
-
-<br/>
-
-## AGENTS 구성 권장 방식
-
-1. 전역 `AGENTS.md`
-   본 저장소에서 제공하는 `AGENTS.md` 또는 전역으로 적용할 파일을 아래의 경로에 존재해야 합니다.
-
-   - Windows: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md`
-   - macOS: `~/.config/codexa/AGENTS.md`
-
-2. 저장소별 `AGENTS.md`
-
-   - 각 프로젝트 루트 또는 워크트리 근처에 배치
-
-3. Codexa 역할
-   - 전역 규칙 + 프로젝트 규칙 자동 병합
-   - 매번 수동 복사 없이 동일한 가드레일 유지
-
-<br/>
-
 ## 라이선스
 
-자세한 내용은 [LICENSE](LICENSE)를 참고하세요.
-
-> ⚠️ `AGENTS.md`에는 내부 규칙이나 민감한 지침이 포함될 수 있습니다.
+[LICENSE](LICENSE) 참고.

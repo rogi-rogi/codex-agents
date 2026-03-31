@@ -1,69 +1,88 @@
-# Codexa
+﻿# Codexa
 
 ![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows) ![macOS](https://img.shields.io/badge/Platform-macOS-000000?logo=apple)
 
 ## Overview
 
-**Codexa** is an ultra-lightweight helper tool that supplements the `codex` CLI.  
-It automatically combines global and local `AGENTS.md` rules, appends the prompt entered by the user, and runs the Codex CLI with a single merged prompt.
+Codexa is a lightweight wrapper for the `codex` CLI.
 
-On Windows it is implemented as a **PowerShell script**, and on macOS as a **Zsh script** that follows the same workflow, delivering a consistent Codex execution environment regardless of operating system.
+It merges the three items below in order and sends them to `codex` as a single prompt.
 
-![](/overview1.png)
-![](/overview2.png)
+- Global `AGENTS.md`: shared baseline rules
+- Local `AGENTS.md`: project/task-specific rules in the current invocation location
+- User input prompt (optional)
 
-<br/>
+This approach keeps a global standard while still allowing project-specific personas and work styles.
+It also helps reproduce the same agent behavior standards even across different ChatGPT accounts.
 
-## Repository Layout
+## Structure
 
-- **`codexa.ps1`**  
-  `codexa` function implementation for PowerShell  
-  (Load AGENTS → merge prompts → invoke `codex`)
+You can install/run using OS-specific components.
 
-- **`codexa.sh`**  
-  macOS (Zsh) script  
-  Performs the same behavior as the PowerShell version
+```
+📦codexa-agents
+┣ 📂codexa-windows
+┃ ┣ 📂codexa
+┃ ┗ ⚙️ setup-windows.ps1: Windows installer script (folder copy + PATH registration)
+┗ ⚙️codexa.sh: macOS zsh launcher script
+```
 
-- **`Microsoft.PowerShell_profile.ps1`**  
-  Bootstrap file that autoloads `codexa.ps1` when PowerShell starts
+> Automatic installer script is currently provided for Windows; a macOS installer script may be added later.
 
-- **`AGENTS.md`**  
-  Common guidelines applied to every Codex run
+## Windows Installation
 
-<br/>
+### Prerequisites
 
-## Installation (Windows / PowerShell)
+1. Install the `codex` CLI.
+2. Ensure the `codex` command is available in terminal.
 
-1. Install the `codex` CLI and add it to PATH.
-2. Copy the files below to the default PowerShell profile directory `%USERPROFILE%\Documents\WindowsPowerShell`.
-   - `codexa.ps1`
-   - `Microsoft.PowerShell_profile.ps1`
-   - `AGENTS.md`
-3. If `Microsoft.PowerShell_profile.ps1` already exists, append the following code block.
+### Installation Steps
 
-   ```powershell
-   $codexaScript = Join-Path (Split-Path $PROFILE) "codexa.ps1"
-   if (Test-Path $codexaScript) {
-      . $codexaScript
-   } else {
-      Write-Warning "codexa.ps1 not found in $($codexaScript | Split-Path). Codexa commands will be unavailable."
-   }
-   ```
+1. Open PowerShell in this repository.
+2. Run the command below.
 
-<br/>
+```powershell
+.\codexa-windows\setup-windows.ps1
+```
 
-## Installation (macOS / Zsh)
+3. Open a new terminal.
+4. Verify operation.
 
-1. Copy `codexa.sh` into a directory included in PATH.
+```powershell
+where codexa
+codexa "test"
+```
+
+### What setup-windows.ps1 does
+
+1. Copies the `codexa-windows/codexa` folder under `%LOCALAPPDATA%`
+   - Target: `%LOCALAPPDATA%\codexa`
+2. Adds `%LOCALAPPDATA%\codexa\bin` to user `PATH` (only when missing)
+3. Does not register a separate environment variable for global AGENTS
+
+### Environment Variable Registration (Windows)
+
+`PATH` (User scope): adds `%LOCALAPPDATA%\codexa\bin`
+
+## Runtime Behavior (Windows)
+
+- Entry point: `codexa` (`%LOCALAPPDATA%\codexa\bin\codexa.cmd`)
+- Core logic: `%LOCALAPPDATA%\codexa\bin\codexa.ps1`
+- Global AGENTS: `%LOCALAPPDATA%\codexa\AGENTS.md` (`..\AGENTS.md` relative to `bin`)
+- Local AGENTS: `./AGENTS.md` in the current folder
+
+## macOS Installation
+
+1. Copy `codexa.sh` to a directory included in PATH.
    ```bash
    install -d "$HOME/bin"
    install codexa.sh "$HOME/bin/codexa"
    ```
-2. Add that directory to the shell configuration (Zsh example).
+2. Add PATH in your shell config file. (Zsh example)
    ```bash
    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
    ```
-3. Copy or move the AGENTS.md you want to use globally into the configured path.  
+3. Copy/move the AGENTS.md to be used globally into the configured path.  
    Example commands:
 
    ```bash
@@ -71,51 +90,13 @@ On Windows it is implemented as a **PowerShell script**, and on macOS as a **Zsh
    cp ./AGENTS.md ~/.config/codexa/AGENTS.md
    ```
 
-   > The default global AGENTS location on macOS is `~/.config/codexa/AGENTS.md`.
+   > Default global AGENTS location on macOS is `~/.config/codexa/AGENTS.md`.
 
-4. Restart the terminal or run the command below.
+4. Restart terminal or run:
    ```bash
    source ~/.zshrc
    ```
 
-<br/>
-
-## Usage
-
-```powershell
-codexa
-codexa "command"
-```
-
-How it works:
-
-- Loads the global `AGENTS.md` first.
-- If there is an `AGENTS.md` in the current repository, loads it additionally.
-- Appends the user-provided prompt.
-- Sends the merged prompt to the `codex` CLI.
-
-<br/>
-
-## Recommended AGENTS Structure
-
-1. Global `AGENTS.md`  
-   Use the `AGENTS.md` from this repository or another global file located at the paths below.
-
-   - Windows: `%USERPROFILE%\Documents\WindowsPowerShell\AGENTS.md`
-   - macOS: `~/.config/codexa/AGENTS.md`
-
-2. Repository-specific `AGENTS.md`
-
-   - Place one near each project root or worktree
-
-3. Role of Codexa
-   - Automatically merges global rules and project rules
-   - Keeps the same guardrails without manual copying each time
-
-<br/>
-
 ## License
 
-See [LICENSE](LICENSE) for details.
-
-> ⚠️ `AGENTS.md` may contain internal policies or sensitive instructions.
+See [LICENSE](LICENSE).
